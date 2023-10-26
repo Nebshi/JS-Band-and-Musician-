@@ -54,3 +54,55 @@ class Musician {
     }
   }
 
+  calculateAge() {
+    const currentYear = new Date().getFullYear();
+    return currentYear - this.birthYear;
+  }
+
+  serialize() {
+    return JSON.stringify(this);
+  }
+
+  static deserialize(json) {
+    const data = JSON.parse(json);
+    return new Musician(data.name, data.info, data.birthYear);
+  }
+}
+
+class BandMember {
+  constructor(musician, joinYear, instruments) {
+    this.musician = musician;
+    this.joinYear = joinYear;
+    this.instruments = instruments;
+  }
+}
+
+class FormerBandMember {
+  constructor(musician, joinYear, leaveYear, instruments) {
+    this.musician = musician;
+    this.joinYear = joinYear;
+    this.leaveYear = leaveYear;
+    this.instruments = instruments;
+  }
+}
+
+class Band {
+  constructor(name, info, formationYear, dissolutionYear = null) {
+    this.name = name;
+    this.info = info;
+    this.formationYear = formationYear;
+    this.dissolutionYear = dissolutionYear;
+    this.currentMembers = [];
+    this.formerMembers = [];
+  }
+
+  addMember(musician, joinYear, instruments) {
+    if (musician instanceof Musician && !this.currentMembers.some((member) => member.musician === musician)) {
+      const member = new BandMember(musician, joinYear, instruments);
+      this.currentMembers.push(member);
+      musician.addBand(this, joinYear, instruments);
+    } else {
+      console.error("Ogiltig musiker-objekt eller musiker är redan medlem i bandet.");
+    }
+  }
+
