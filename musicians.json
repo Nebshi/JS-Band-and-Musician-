@@ -1,0 +1,32 @@
+[
+  {
+    "name": "john doe",
+    "info": "best rapper 2010",
+    "birthYear": 1989,
+    "bands": []
+  },
+  {
+    "name": "john doe ",
+    "info": "best rapper 2010",
+    "birthYear": 1989,
+    "bands": []
+  },
+  {
+    "name": "john doe",
+    "info": "best rapper alve",
+    "birthYear": 1980,
+    "bands": []
+  },
+  {
+    "name": "j",
+    "info": "d",
+    "birthYear": null,
+    "bands": []
+  },
+  {
+    "name": "f",
+    "info": "d",
+    "birthYear": null,
+    "bands": []
+  }
+]
