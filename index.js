@@ -183,3 +183,136 @@ function removeBand() {
   });
 }
 
+function removeMusician() {
+  rl.question("Ange musikerns namn som ska tas bort: ", (musicianName) => {
+    const musicianToRemove = musicians.find((musician) => musician.name === musicianName);
+    if (musicianToRemove) {
+      musicians = musicians.filter((musician) => musician.name !== musicianName);
+
+      for (const membership of musicianToRemove.bands) {
+        membership.band.removeMember(musicianToRemove);
+      }
+      console.log(`Musiker ${musicianName} har tagits bort.`);
+      saveDataToJson('musicians.json', musicians);
+    } else {
+      console.error("Musikern kunde inte hittas.");
+    }
+    mainMenu();
+  });
+}
+
+function addMusicianToBand() {
+  rl.question("Ange musikerns namn som ska läggas till i bandet: ", (musicianName) => {
+    const musician = musicians.find((musician) => musician.name === musicianName);
+    if (musician) {
+      rl.question("Ange bandets namn: ", (bandName) => {
+        const band = bands.find((band) => band.name === bandName);
+        if (band) {
+          rl.question("Ange anslutningsår: ", (joinYear) => {
+            rl.question("Ange vilka instrument musikern spelar (separerade med kommatecken): ", (instruments) => {
+              musician.addBand(band, parseInt(joinYear), instruments.split(','));
+              console.log(`Musiker ${musicianName} har lagts till i bandet ${bandName}.`);
+              saveDataToJson('musicians.json', musicians);
+              saveDataToJson('bands.json', bands);
+              mainMenu();
+            });
+          });
+        } else {
+          console.error("Bandet kunde inte hittas.");
+          mainMenu();
+        }
+      });
+    } else {
+      console.error("Musikern kunde inte hittas.");
+      mainMenu();
+    }
+  });
+}
+
+function displayMusicianInfo() {
+  rl.question("Ange musikerns namn: ", (musicianName) => {
+    const musician = musicians.find((musician) => musician.name === musicianName);
+    if (musician) {
+      console.log(`Namn: ${musician.name}`);
+      console.log(`Info: ${musician.info}`);
+      console.log(`Födelseår: ${musician.birthYear}`);
+      console.log(`Ålder: ${musician.calculateAge()} år`);
+      console.log("Medlem i band:");
+      for (const membership of musician.bands) {
+        console.log(`- ${membership.band.name}`);
+      }
+    } else {
+      console.error("Musikern kunde inte hittas.");
+    }
+    mainMenu();
+  });
+}
+
+function displayBandInfo() {
+  rl.question("Ange bandets namn: ", (bandName) => {
+    const band = bands.find((band) => band.name === bandName);
+    if (band) {
+      console.log(`Namn: ${band.name}`);
+      console.log(`Info: ${band.info}`);
+      console.log(`Bildande år: ${band.formationYear}`);
+      console.log(`Upplösnings år: ${band.dissolutionYear || "Ej upplöst"}`);
+      console.log("Nuvarande medlemmar:");
+      for (const member of band.currentMembers) {
+        console.log(`- ${member.musician.name}`);
+      }
+    } else {
+      console.error("Bandet kunde inte hittas.");
+    }
+    mainMenu();
+  });
+}
+
+
+let musicians = loadDataFromJson('musicians.json') || [];
+let bands = loadDataFromJson('bands.json') || [];
+
+function mainMenu() {
+  console.log("Välkommen till band och musiker!");
+  console.log("1. Skapa musiker");
+  console.log("2. Skapa band");
+  console.log("3. Lägg till musiker till band");
+  console.log("4. Ta bort musiker från band");
+  console.log("5. Visa information om musiker");
+  console.log("6. Visa information om band");
+  console.log("7. Ta bort band");
+  console.log("8. Avsluta");
+
+  rl.question("Välj ett alternativ: ", (choice) => {
+    switch (choice) {
+      case '1':
+        createMusician();
+        break;
+      case '2':
+        createBand();
+        break;
+      case '3':
+        addMusicianToBand();
+        break;
+      case '4':
+        removeMusician();
+        break;
+      case '5':
+        displayMusicianInfo();
+        break;
+      case '6':
+        displayBandInfo();
+        break;
+      case '7':
+        removeBand();
+        break;
+      case '8':
+        rl.close();
+        break;
+      default:
+        console.log("Ogiltigt val. Försök igen.");
+        mainMenu();
+    }
+  });
+}
+
+mainMenu();
