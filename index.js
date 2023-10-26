@@ -106,3 +106,80 @@ class Band {
     }
   }
 
+  removeMember(musician, joinYear, instruments) {
+    if (musician instanceof Musician) {
+      const index = this.currentMembers.findIndex((member) => member.musician === musician);
+      if (index !== -1) {
+        const member = this.currentMembers.splice(index, 1)[0];
+        musician.removeBand(this, joinYear, instruments);
+        this.addToFormerMembers(musician, joinYear, new Date().getFullYear(), instruments);
+      } else {
+        console.error("Denna musiker är inte medlem i bandet.");
+      }
+    } else {
+      console.error("Ogiltig musiker-objekt.");
+    }
+  }
+
+  addToFormerMembers(musician, joinYear, leaveYear, instruments) {
+    this.formerMembers.push(new FormerBandMember(musician, joinYear, leaveYear, instruments));
+  }
+
+  serialize() {
+    return JSON.stringify(this);
+  }
+
+  static deserialize(json) {
+    const data = JSON.parse(json);
+    return new Band(data.name, data.info, data.formationYear, data.dissolutionYear);
+  }
+}
+
+function createMusician() {
+  rl.question("Ange musikerns namn: ", (name) => {
+    rl.question("Ange musikerns info: ", (info) => {
+      rl.question("Ange födelseår: ", (birthYear) => {
+        const musician = new Musician(name, info, parseInt(birthYear));
+        musicians.push(musician);
+        console.log(`Musiker ${musician.name} skapad.`);
+        saveDataToJson('musicians.json', musicians);
+        mainMenu();
+      });
+    });
+  });
+}
+
+function createBand() {
+  rl.question("Ange bandets namn: ", (name) => {
+    rl.question("Ange bandets info: ", (info) => {
+      rl.question("Ange bildande år: ", (formationYear) => {
+        rl.question("Ange upplösning år (lämna tomt om bandet fortfarande existerar): ", (dissolutionYear) => {
+          const band = new Band(name, info, parseInt(formationYear), dissolutionYear || null);
+          bands.push(band);
+          console.log(`Band ${band.name} skapat.`);
+          saveDataToJson('bands.json', bands);
+          mainMenu();
+        });
+      });
+    });
+  });
+}
+
+function removeBand() {
+  rl.question("Ange bandets namn som ska tas bort: ", (bandName) => {
+    const bandToRemove = bands.find((band) => band.name === bandName);
+    if (bandToRemove) {
+      bands = bands.filter((band) => band.name !== bandName);
+
+      for (const member of bandToRemove.currentMembers) {
+        member.musician.removeBand(bandToRemove);
+      }
+      console.log(`Band ${bandName} har tagits bort.`);
+      saveDataToJson('bands.json', bands);
+    } else {
+      console.error("Bandet kunde inte hittas.");
+    }
+    mainMenu();
+  });
+}
+
